@@ -61,14 +61,19 @@ def build_reduced_space_formulation(block, network_structure, skip_activations=F
     if not skip_activations:
         activations = net.activations
         for i in block.hidden_output_nodes:
+            if i in net.layer_node_ids:
+                layer_zhat = [block.zhat[i] for i in net.layer_node_ids[i]]
+            else:
+                layer_zhat = ()
+
             if i not in activations or activations[i] is None or activations[i] == 'linear':
                 block.z[i] = block.zhat[i]
             elif type(activations[i]) is str:
                 afunc = pyomo_activations[activations[i]]
-                block.z[i] = afunc(block.zhat[i])
+                block.z[i] = afunc(block.zhat[i],*layer_zhat)
             else:
                 # better have given us a function that is valid for pyomo expressions
-                block.z[i] = activations[i](block.zhat[i])
+                block.z[i] = activations[i](block.zhat[i],*layer_zhat)
 
     # define the output constraints
     outputs = {i: block.z[i] for i in output_node_ids}

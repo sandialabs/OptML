@@ -2,7 +2,7 @@ import warnings
 
 class NetworkDefinition(object):
     def __init__(self, n_inputs, n_hidden, n_outputs, weights, biases,
-                 activations, scaling_object=None, input_bounds=None):
+                 activations, layer_node_ids={}, scaling_object=None, input_bounds=None):
         """
         This class provides the neural network structure in a way that is *similar* to
         that provided in [1] as defined by:
@@ -55,6 +55,7 @@ class NetworkDefinition(object):
         self.__weights = weights
         self.__biases = biases
         self.__activations = activations
+        self.__layer_node_ids = layer_node_ids
         self.__scaling_object = scaling_object
         self.__input_bounds = input_bounds
 
@@ -118,6 +119,11 @@ class NetworkDefinition(object):
     def scaling_object(self, scaling_object):
         self.__scaling_object = scaling_object
 
+    @property
+    def layer_node_ids(self):
+        """ Return a layer dictionary mapping each node id to the list of node ids with which it shares a layer"""
+        return self.__layer_node_ids
+
     def input_node_ids(self):
         """ Return the ids associated with all the input nodes.
         This is {0 .. n_x-1} """
@@ -138,5 +144,6 @@ class NetworkDefinition(object):
         """ Return the ids associated with all of the nodes.
         This is {0 .. n_x+n_h+n_y-1} """
         return [i for i in range(0, self.n_inputs + self.n_hidden + self.n_outputs)]
+
 
 

@@ -84,14 +84,20 @@ def build_full_space_formulation(block, network_structure, skip_activations=Fals
         activations = net.activations
         block.activation_constraints = pyo.Constraint(block.hidden_output_nodes)
         for i in block.hidden_output_nodes:
+            #check whether the node uses its layer nodes in the activation
+            if i in net.layer_node_ids:
+                layer_zhat = [block.zhat[i] for i in net.layer_node_ids[i]]
+            else:
+                layer_zhat = ()
+
             if i not in activations or activations[i] is None or activations[i] == 'linear':
                 block.activation_constraints[i] = block.z[i] == block.zhat[i]
             elif type(activations[i]) is str:
                 afunc = pyomo_activations[activations[i]]
-                block.activation_constraints[i] = block.z[i] == afunc(block.zhat[i])
+                block.activation_constraints[i] = block.z[i] == afunc(block.zhat[i],*layer_zhat)
             else:
                 # better have given us a function that is valid for pyomo expressions
-                block.activation_constraints[i] = block.z[i] == activations[i](block.zhat[i])
+                block.activation_constraints[i] = block.z[i] == activations[i](block.zhat[i],*layer_zhat)
 
     # define the output constraints
     outputs = {i: block.z[i] for i in output_node_ids}
@@ -100,3 +106,10 @@ def build_full_space_formulation(block, network_structure, skip_activations=Fals
     block.output_constraints = pyo.Constraint(output_node_ids)
     for i in output_node_ids:
         block.output_constraints[i] = y[i] == outputs[i]
+
+# elif activations[i] == 'softmax': 
+#     afunc = pyomo_activations[activations[i]]
+#     afunc_ = activations[i]
+#     #z_i = \sigma(zhat)
+#     #retrieve pyomo variables needed to perform softmax
+#     block.activation_constraints[i] = block.z[i] == afunc(block.zhat[i],)

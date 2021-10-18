@@ -2,10 +2,13 @@ import pyomo.environ as pyo
 from pyomo.core.base.var import ScalarVar, IndexedVar
 
 pyomo_activations = {
-    'tanh': pyo.tanh,
-    'sigmoid': lambda x: 1 / (1 + pyo.exp(-x)),
-    'softplus': lambda x: pyo.log(pyo.exp(x) + 1)
+    'tanh': lambda xi,*x: pyo.tanh(xi),
+    'sigmoid': lambda xi,*x: 1 / (1 + pyo.exp(-xi)),
+    'softplus': lambda xi,*x: pyo.log(pyo.exp(xi) + 1),
+    'softmax': lambda xi,*x: pyo.exp(xi) / sum(pyo.exp(xj) for xj in x)
 }
+
+#pyomo_vector_activations = {'softmax': lambda xj,x: pyo.exp(xj) / sum(pyo.exp(xj) for xi in x)}
 
 def _extract_var_data(vars):
     if isinstance(vars, ScalarVar):
