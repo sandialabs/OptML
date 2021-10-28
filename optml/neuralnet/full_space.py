@@ -106,10 +106,3 @@ def build_full_space_formulation(block, network_structure, skip_activations=Fals
     block.output_constraints = pyo.Constraint(output_node_ids)
     for i in output_node_ids:
         block.output_constraints[i] = y[i] == outputs[i]
-
-# elif activations[i] == 'softmax': 
-#     afunc = pyomo_activations[activations[i]]
-#     afunc_ = activations[i]
-#     #z_i = \sigma(zhat)
-#     #retrieve pyomo variables needed to perform softmax
-#     block.activation_constraints[i] = block.z[i] == afunc(block.zhat[i],)
